@@ -1,0 +1,10 @@
+# DeerFlow is an independent upstream repository.
+# Keep it out of this top-level project's git history so it can be upgraded directly.
+/vendor/deer-flow/
+
+# Local runtime/config files
+.DS_Store
+.env
+.env.*
+!.env.example
+

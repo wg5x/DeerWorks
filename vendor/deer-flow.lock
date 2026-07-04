@@ -1,0 +1,4 @@
+repo: https://github.com/bytedance/deer-flow.git
+path: vendor/deer-flow
+ref: main
+commit: 94c852ac4a460292173f18c77e40b5f50bd8bddd
