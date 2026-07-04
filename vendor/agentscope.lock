@@ -1,0 +1,4 @@
+repo: git@github.com:agentscope-ai/agentscope.git
+path: vendor/agentscope
+ref: main
+commit: 922e673b0e3dc5380a4f7de2032666dfd00434e8

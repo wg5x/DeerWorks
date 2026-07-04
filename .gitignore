@@ -1,10 +1,11 @@
-# DeerFlow is an independent upstream repository.
-# Keep it out of this top-level project's git history so it can be upgraded directly.
+# Vendor projects are independent upstream repositories.
+# Keep them out of this top-level project's git history so they can be upgraded directly.
 /vendor/deer-flow/
+/vendor/agentscope/
+/vendor/agentscope-runtime/
 
 # Local runtime/config files
 .DS_Store
 .env
 .env.*
 !.env.example
-

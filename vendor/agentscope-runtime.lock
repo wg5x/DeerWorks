@@ -1,0 +1,4 @@
+repo: git@github.com:agentscope-ai/agentscope-runtime.git
+path: vendor/agentscope-runtime
+ref: main
+commit: 22072fd7075ce0c6f43cb39509d6a14b0e60ddb5

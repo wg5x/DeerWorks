@@ -4,16 +4,16 @@ DeerWorks 是一个基于 DeerFlow 的企业级 Agent 平台。
 
 Enterprise Agent Platform based on DeerFlow.
 
-这个顶层项目用于承载围绕 DeerFlow 的企业平台代码、本地集成、配置、部署、说明文档和后续自有扩展。
+这个顶层项目用于承载围绕 DeerFlow 的企业平台代码、本地集成、配置、部署、说明文档和后续自有扩展。AgentScope 作为后续 Agent 平台的另一套技术方案放在 vendor 中研究和对比。
 
-DeerFlow 源码放在 `vendor/deer-flow/`，它是一个独立 Git 仓库，remote 指向官方上游：
+上游开源项目源码放在 `vendor/` 下，每个目录都是独立 Git 仓库，remote 指向官方上游：
 
 ```bash
 cd vendor/deer-flow
 git remote -v
 ```
 
-顶层项目通过 `.gitignore` 忽略 `vendor/deer-flow/`，避免把上游项目源码混进自己的 Git 历史。这样 DeerFlow 可以独立升级，顶层项目也可以独立演进。
+顶层项目通过 `.gitignore` 忽略 vendor 源码目录，避免把上游项目源码混进自己的 Git 历史。各上游项目用对应 `.lock` 文件记录当前 checkout 的 repo、path、ref 和 commit。
 
 ## 本地结构
 
@@ -21,6 +21,7 @@ git remote -v
 DeerWorks/
 ├── README.md
 ├── docs/
+│   ├── agentscope-platform-option.zh.md
 │   └── deerflow-vendor-guide.zh.md
 ├── scripts/
 │   ├── check_deerflow_clean.sh
@@ -28,13 +29,18 @@ DeerWorks/
 ├── tests/
 │   └── test_deerflow_vendor_scripts.sh
 └── vendor/
+    ├── agentscope.lock
+    ├── agentscope-runtime.lock
     ├── deer-flow.lock    # DeerFlow 上游版本锁
+    ├── agentscope/       # 独立的 AgentScope 上游仓库，不由顶层 git 跟踪
+    ├── agentscope-runtime/  # 独立的 AgentScope Runtime 上游仓库，不由顶层 git 跟踪
     └── deer-flow/        # 独立的 DeerFlow 上游仓库，不由顶层 git 跟踪
 ```
 
-## DeerFlow 版本管理
+## Vendor 版本管理
 
 当前使用的 DeerFlow 上游 commit 记录在 [vendor/deer-flow.lock](vendor/deer-flow.lock)。
+AgentScope 和 AgentScope Runtime 的当前 checkout 分别记录在 [vendor/agentscope.lock](vendor/agentscope.lock) 与 [vendor/agentscope-runtime.lock](vendor/agentscope-runtime.lock)。
 
 升级前先确认 vendor 仓库没有本地改动：
 
@@ -62,13 +68,17 @@ scripts/update_deerflow.sh --no-fetch
 
 原则：
 
-- `vendor/deer-flow/` 尽量保持干净，只跟随官方上游升级。
+- `vendor/*/` 上游源码目录尽量保持干净，只跟随官方上游升级。
 - 企业配置、部署、自定义 skills、MCP 适配和平台代码放在顶层项目里。
-- 如果确实必须修改 DeerFlow 源码，优先切到自己的 DeerFlow fork，并在 `vendor/deer-flow.lock` 或变更记录中写清楚原因。
+- 如果确实必须修改上游源码，优先切到自己的 fork，并在对应 lock 文件或变更记录中写清楚原因。
 
 ## DeerFlow Vendor 导览
 
 见 [docs/deerflow-vendor-guide.zh.md](docs/deerflow-vendor-guide.zh.md)。
+
+## AgentScope 技术方案
+
+见 [docs/agentscope-platform-option.zh.md](docs/agentscope-platform-option.zh.md)。
 
 ## 测试
 
