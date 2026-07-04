@@ -98,6 +98,15 @@ Agent 调用时应能拿到：
 - RAG 是知识问答和非结构化检索。
 - Agent 可以同时调用两者，但权限和审计要分开。
 
+数据库也可能被上层 Application SaaS 直接访问。这个路径和 Agent 通过 MCP 访问数据库不是一回事：
+
+| 访问路径 | 适用场景 | 权限模型 |
+| --- | --- | --- |
+| Application backend -> database | 应用自己的业务逻辑、事务、状态读写 | 应用后端账号、业务权限、ORM/SQL/Redis client |
+| Agent -> MCP tool -> database | Agent 完成任务时的受控查询或操作 | MCP 工具账号、tool allowlist、审计、限流、脱敏 |
+
+同一个数据库可以同时服务这两条路径，但不应该让 Agent 直接拿到应用后端的完整数据库权限。Agent 侧更适合暴露小而明确的工具。
+
 数据库 MCP 应尽量避免暴露任意 SQL 给普通 Agent。更推荐暴露受限工具：
 
 ```text

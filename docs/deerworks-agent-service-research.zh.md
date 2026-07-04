@@ -34,6 +34,31 @@ DeerWorks 不负责：
 - 不承载具体客户应用的业务页面和业务流程。
 - 不把 DeerFlow vendor 源码混入顶层项目历史。
 
+## SaaS 边界
+
+DeerWorks 对外提供的服务可以被理解为 Agent SaaS，但它不是所有 SaaS 应用的业务后端。这里需要区分两类 SaaS：
+
+| 类型 | 定义 | 数据访问方式 |
+| --- | --- | --- |
+| DeerWorks Agent SaaS | 由 Agent 创建、编排和暴露出来的 SaaS 能力，也可以叫 Agent-as-a-Service | Agent 通过 MCP 访问 RAG、数据库、工具和业务系统 |
+| Application SaaS | 具体业务应用自己开发的 SaaS 产品，例如 CRM、工单、行业门户或客户业务系统 | 应用后端可以直接访问自己的 PostgreSQL、Redis 或业务数据库 |
+
+两者可以组合，但职责不同：
+
+```text
+Application SaaS
+  -> own UI / own backend / own database
+  -> calls DeerWorks Agent API when AI capability is needed
+
+DeerWorks Agent SaaS
+  -> Agent API
+  -> DeerFlow Agent
+  -> MCP tools
+  -> RAG / DB / external systems
+```
+
+如果数据库访问是应用自身业务逻辑的一部分，它属于 Application SaaS。如果数据库访问是 Agent 完成任务时需要的工具能力，它应该通过受控 MCP tool 进入 Agent。即使访问的是同一个数据库，两条路径也应该使用不同的权限、审计和限流策略。
+
 外部系统通过 MCP 或普通 API 进入 Agent：
 
 ```text

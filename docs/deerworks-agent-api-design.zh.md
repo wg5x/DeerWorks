@@ -11,6 +11,17 @@
 - 支持记录调用来源、应用、客户、场景和业务元数据。
 - 为后续鉴权、审计、限流、计费和 observability 留出位置。
 
+## 对外服务形态
+
+DeerWorks 暴露的是 Agent API SaaS，而不是替代所有应用后端的通用 SaaS 框架。
+
+上层业务可以有两种形态：
+
+1. Agent 驱动型 SaaS：应用本身较薄，核心能力主要由 DeerWorks Agent API 提供，例如客服问答、合同审查、报告生成、文档分析。
+2. 传统应用 SaaS + Agent 增强：应用拥有自己的 UI、后端和业务数据库，只在需要智能能力时调用 DeerWorks Agent API，例如 CRM、ERP、工单、项目管理或行业业务系统。
+
+因此 DeerWorks API 的职责是稳定地暴露 Agent 能力，而不是接管应用自己的数据库访问和业务流程。应用自己的数据库可以由应用后端直接访问；Agent 需要访问数据库时，则应通过 MCP tool 受控访问。
+
 ## 核心对象
 
 ### Agent
