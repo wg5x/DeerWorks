@@ -25,7 +25,8 @@ DeerWorks/
 │   ├── deerworks-agent-api-design.zh.md
 │   ├── deerworks-agent-service-research.zh.md
 │   ├── deerworks-mcp-tooling-research.zh.md
-│   └── deerflow-vendor-guide.zh.md
+│   ├── deerflow-vendor-guide.zh.md
+│   └── open-source-agent-platforms-research.zh.md
 ├── scripts/
 │   ├── check_deerflow_clean.sh
 │   └── update_deerflow.sh
@@ -84,6 +85,7 @@ scripts/update_deerflow.sh --no-fetch
 - [Agent 集合服务调研](docs/deerworks-agent-service-research.zh.md)
 - [Agent API 设计草案](docs/deerworks-agent-api-design.zh.md)
 - [MCP 与工具接入调研](docs/deerworks-mcp-tooling-research.zh.md)
+- [开源 Agent 平台对标调研](docs/open-source-agent-platforms-research.zh.md)
 
 ## AgentScope 技术方案
 
