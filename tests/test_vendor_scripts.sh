@@ -31,8 +31,8 @@ run_in_tmp() {
   local tmp
   tmp="$(mktemp -d)"
   mkdir -p "$tmp/scripts"
-  cp "$ROOT_DIR/scripts/check_deerflow_clean.sh" "$tmp/scripts/check_deerflow_clean.sh"
-  cp "$ROOT_DIR/scripts/update_deerflow.sh" "$tmp/scripts/update_deerflow.sh"
+  cp "$ROOT_DIR/scripts/check_vendor_clean.sh" "$tmp/scripts/check_vendor_clean.sh"
+  cp "$ROOT_DIR/scripts/update_vendor.sh" "$tmp/scripts/update_vendor.sh"
   (
     cd "$tmp"
     "$@"
@@ -41,13 +41,22 @@ run_in_tmp() {
   echo "ok - $name"
 }
 
+run_in_tmp "clean check requires vendor name" bash -c '
+  set +e
+  output="$(./scripts/check_vendor_clean.sh 2>&1)"
+  code=$?
+  set -e
+  [[ "$code" -eq 2 ]]
+  [[ "$output" == *"--vendor is required"* ]]
+'
+
 run_in_tmp "clean check fails when vendor repo is missing" bash -c '
   set +e
-  output="$(./scripts/check_deerflow_clean.sh 2>&1)"
+  output="$(./scripts/check_vendor_clean.sh --vendor agentscope 2>&1)"
   code=$?
   set -e
   [[ "$code" -ne 0 ]]
-  [[ "$output" == *"vendor/deer-flow is missing"* ]]
+  [[ "$output" == *"vendor/agentscope is missing"* ]]
 '
 
 run_in_tmp "clean check passes for clean vendor repo" bash -c '
@@ -62,9 +71,9 @@ run_in_tmp "clean check passes for clean vendor repo" bash -c '
     git -C "$repo" add README.md
     git -C "$repo" commit -q -m "initial"
   }
-  make_repo vendor/deer-flow
-  output="$(./scripts/check_deerflow_clean.sh)"
-  [[ "$output" == *"vendor/deer-flow is clean"* ]]
+  make_repo vendor/agentscope-runtime
+  output="$(./scripts/check_vendor_clean.sh --vendor agentscope-runtime)"
+  [[ "$output" == *"vendor/agentscope-runtime is clean"* ]]
 '
 
 run_in_tmp "clean check fails for dirty vendor repo" bash -c '
@@ -82,7 +91,7 @@ run_in_tmp "clean check fails for dirty vendor repo" bash -c '
   make_repo vendor/deer-flow
   echo "dirty" >> vendor/deer-flow/README.md
   set +e
-  output="$(./scripts/check_deerflow_clean.sh 2>&1)"
+  output="$(./scripts/check_vendor_clean.sh --vendor deer-flow 2>&1)"
   code=$?
   set -e
   [[ "$code" -ne 0 ]]
@@ -101,10 +110,19 @@ run_in_tmp "update writes vendor lock without fetching" bash -c '
     git -C "$repo" add README.md
     git -C "$repo" commit -q -m "initial"
   }
-  make_repo vendor/deer-flow
-  sha="$(git -C vendor/deer-flow rev-parse HEAD)"
-  ./scripts/update_deerflow.sh --no-fetch
-  grep -q "$sha" vendor/deer-flow.lock
-  grep -q "vendor/deer-flow" vendor/deer-flow.lock
+  make_repo vendor/agentscope
+  sha="$(git -C vendor/agentscope rev-parse HEAD)"
+  ./scripts/update_vendor.sh --vendor agentscope --no-fetch
+  grep -q "$sha" vendor/agentscope.lock
+  grep -q "vendor/agentscope" vendor/agentscope.lock
   [[ ! -e DEERFLOW_VERSION ]]
+'
+
+run_in_tmp "update requires vendor name" bash -c '
+  set +e
+  output="$(./scripts/update_vendor.sh --no-fetch 2>&1)"
+  code=$?
+  set -e
+  [[ "$code" -eq 2 ]]
+  [[ "$output" == *"--vendor is required"* ]]
 '

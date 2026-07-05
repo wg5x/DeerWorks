@@ -29,10 +29,10 @@ DeerWorks/
 │   ├── 06-开源Agent平台对标调研.zh.md
 │   └── 07-AgentScope技术方案调研.zh.md
 ├── scripts/
-│   ├── check_deerflow_clean.sh
-│   └── update_deerflow.sh
+│   ├── check_vendor_clean.sh
+│   └── update_vendor.sh
 ├── tests/
-│   └── test_deerflow_vendor_scripts.sh
+│   └── test_vendor_scripts.sh
 └── vendor/
     ├── agentscope.lock
     ├── agentscope-runtime.lock
@@ -50,25 +50,29 @@ AgentScope 和 AgentScope Runtime 的当前 checkout 分别记录在 [vendor/age
 升级前先确认 vendor 仓库没有本地改动：
 
 ```bash
-scripts/check_deerflow_clean.sh
+scripts/check_vendor_clean.sh --vendor deer-flow
+scripts/check_vendor_clean.sh --vendor agentscope
+scripts/check_vendor_clean.sh --vendor agentscope-runtime
 ```
 
-升级到官方 `main` 最新版本，并刷新 `vendor/deer-flow.lock`：
+升级到官方 `main` 最新版本，并刷新对应 `vendor/*.lock`：
 
 ```bash
-scripts/update_deerflow.sh
+scripts/update_vendor.sh --vendor deer-flow
+scripts/update_vendor.sh --vendor agentscope
+scripts/update_vendor.sh --vendor agentscope-runtime
 ```
 
 升级到指定分支、tag 或 commit：
 
 ```bash
-scripts/update_deerflow.sh --ref <branch-or-tag-or-commit>
+scripts/update_vendor.sh --vendor deer-flow --ref <branch-or-tag-or-commit>
 ```
 
 离线刷新版本锁，不执行 `fetch` 或 `pull`：
 
 ```bash
-scripts/update_deerflow.sh --no-fetch
+scripts/update_vendor.sh --vendor deer-flow --no-fetch
 ```
 
 原则：
@@ -92,5 +96,5 @@ scripts/update_deerflow.sh --no-fetch
 顶层脚本测试：
 
 ```bash
-bash tests/test_deerflow_vendor_scripts.sh
+bash tests/test_vendor_scripts.sh
 ```
