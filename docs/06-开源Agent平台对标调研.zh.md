@@ -177,6 +177,46 @@ Application / Feishu / SaaS
   -> MCP Tools / RAG / Search / Database / Files
 ```
 
+### 飞书通讯能力的位置
+
+飞书不应该被当成 Agent runtime 或 Agent 编排框架来比较。它更适合作为 DeerWorks 的企业通讯入口，也就是 Channel Adapter。
+
+飞书开放平台的通讯能力可以支撑这些入口：
+
+- 用户私聊机器人或在群里 @ 机器人，飞书通过消息事件把用户输入推给 DeerWorks。
+- DeerWorks 调用飞书消息 API，把 Agent 回复发回私聊或群聊。
+- 回复形态可以从纯文本开始，后续扩展到富文本、文件、图片和交互卡片。
+- 群聊可以绑定默认 Agent，也可以配置一个允许使用的 Agent 列表。
+- 飞书的 `chat_id`、用户身份、消息 ID 和租户信息可以进入 DeerWorks 的 `context` 和 `metadata`，用于会话、审计和权限判断。
+
+推荐链路：
+
+```text
+Feishu Bot / Group Chat
+  -> Feishu Event Subscription
+  -> DeerWorks Feishu Channel Adapter
+  -> app_id / chat_id / user_id / tenant_id / command parsing
+  -> DeerWorks Agent API
+  -> DeerFlow Runtime
+  -> MCP Tools
+  -> DeerWorks Feishu Channel Adapter
+  -> Feishu Message / Card Reply
+```
+
+这说明飞书能力不改变前面的 runtime 选型结论：
+
+- DeerFlow 继续负责深度调研、报告生成、长任务、subagents、sandbox、skills、MCP 和 memory。
+- DeerWorks 负责把飞书消息转换成统一 Agent API 请求，并把 Agent 输出转换成飞书消息或卡片。
+- CrewAI 或 MetaGPT 即使被引入，也仍然需要同样的飞书 Channel Adapter，因此不能因为“要接飞书”就切换主 runtime。
+
+飞书接入时需要特别注意权限边界：
+
+- `chat_id -> allowed_agent_ids`：某个飞书群只能访问被授权的 Agent。
+- `agent_id -> allowed_mcp_tools`：被群调用的 Agent 仍然只能访问被授权的工具。
+- `tenant_id / user_id -> data_scope`：用户和租户身份要进入 RAG、数据库和业务系统的权限判断。
+- 飞书事件回调要做签名、token 或 challenge 校验，不能把公网请求直接转成 Agent 调用。
+- 长报告任务不宜只靠一条同步消息返回，应该优先使用流式状态、进度卡片、任务链接或最终报告链接。
+
 ### 决策规则
 
 后续如果再遇到 Agent 平台选型，可以按下面规则判断：
@@ -187,6 +227,7 @@ Application / Feishu / SaaS
 | 主要是固定业务流程、步骤清晰、只需要轻量 Python 编排吗？ | CrewAI 可做独立 PoC |
 | 主要是软件研发流程自动化，例如 PRD、架构、任务、代码生成吗？ | MetaGPT 可作为专项 Agent 参考 |
 | 是否要给多个应用暴露稳定 Agent API，并治理 MCP/tools 权限？ | DeerWorks + DeerFlow |
+| 是否要接入飞书、企业微信、Slack 等通讯入口？ | 作为 Channel Adapter 接入 DeerWorks |
 | 是否已经有 DeerFlow 基线和 vendor 管理？ | 继续 DeerFlow，避免双 runtime |
 
 ### 当前取舍
@@ -210,6 +251,7 @@ DeerWorks 不应复制任何一个项目，而应保持自己的边界：
 | RAG | 外部服务，通过 MCP 访问 |
 | 数据库 | 应用可直连；Agent 通过受控 MCP tool 访问 |
 | 应用构建 | 不做完整应用 SaaS，本仓库只提供 Agent API 能力 |
+| 通讯入口 | 飞书等 IM 作为 Channel Adapter 接入，不作为 runtime |
 | 可视化 | 不是第一阶段重点 |
 | MCP | 是核心外部能力接入方式 |
 | 企业治理 | DeerWorks 重点补齐 app -> agent、agent -> tool 的权限和审计 |
@@ -243,7 +285,8 @@ DeerFlow runtime
 4. 设计 app -> agent 与 agent -> MCP tool 的 allowlist。
 5. 加入调用审计和 run metadata。
 6. 设计 `research-agent`、`report-agent`、`document-qa-agent` 作为第一批样板 Agent。
-7. 再对照 Open Agent Platform / mcp-agent / CrewAI / MetaGPT 设计第二阶段能力。
+7. 接入飞书 Channel Adapter，验证群聊调用 Agent、权限控制和报告回传。
+8. 再对照 Open Agent Platform / mcp-agent / CrewAI / MetaGPT 设计第二阶段能力。
 
 参考链接：
 
@@ -257,3 +300,6 @@ DeerFlow runtime
 - [MetaGPT](https://github.com/FoundationAgents/MetaGPT)
 - [MetaGPT Docs](https://docs.deepwisdom.ai/main/en/guide/get_started/introduction.html)
 - [DeerFlow](https://github.com/bytedance/deer-flow)
+- [Feishu Receive Message Event](https://open.feishu.cn/document/server-docs/im-v1/message/events/receive)
+- [Feishu Send Message API](https://open.feishu.cn/document/server-docs/im-v1/message/create)
+- [Feishu Reply Message API](https://open.feishu.cn/document/server-docs/im-v1/message/reply)
